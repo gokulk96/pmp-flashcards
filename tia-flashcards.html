@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIA PMP Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card-front: #1a1a28;
+    --card-back: #0f1f2a;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #a855f7;
+    --text: #e8e8f0;
+    --muted: #6b7280;
+    --border: rgba(0,212,255,0.15);
+    --gold: #f5c842;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 20%, rgba(0,212,255,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(168,85,247,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 32px 40px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-badge {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: #000;
+  }
+
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span { color: var(--accent); }
+
+  .header-stats {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Category Nav */
+  .category-nav {
+    position: relative;
+    z-index: 10;
+    padding: 28px 40px 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .cat-btn {
+    padding: 8px 18px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .cat-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .cat-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-weight: 600;
+  }
+
+  /* Progress bar */
+  .progress-section {
+    position: relative;
+    z-index: 10;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .progress-bar-wrap {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* Main flashcard area */
+  .card-area {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 40px 0;
+  }
+
+  .card-counter {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+
+  /* Flashcard */
+  .flashcard-container {
+    width: 100%;
+    max-width: 780px;
+    perspective: 1200px;
+  }
+
+  .flashcard {
+    width: 100%;
+    height: 380px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.23, 1, 0.32, 1);
+    cursor: pointer;
+  }
+
+  .flashcard.flipped {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 44px 52px;
+    overflow: hidden;
+  }
+
+  .card-front {
+    background: var(--card-front);
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  .card-front::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  .card-back {
+    background: var(--card-back);
+    border: 1px solid rgba(0,212,255,0.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(0,212,255,0.05);
+    transform: rotateY(180deg);
+  }
+
+  .card-back::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+  }
+
+  .card-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .card-back .card-tag {
+    color: var(--accent2);
+  }
+
+  .card-question {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.35;
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  .card-answer {
+    font-size: 15px;
+    line-height: 1.75;
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+  }
+
+  .card-answer ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+  }
+
+  .card-answer ul li {
+    padding: 5px 0 5px 20px;
+    position: relative;
+    color: #c8d6e5;
+    font-size: 14.5px;
+  }
+
+  .card-answer ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-size: 10px;
+    top: 8px;
+  }
+
+  .card-answer p {
+    color: #c8d6e5;
+    font-size: 14.5px;
+  }
+
+  .card-hint {
+    margin-top: auto;
+    padding-top: 20px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.2);
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .card-corner-decoration {
+    position: absolute;
+    bottom: 28px;
+    right: 36px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.07;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 14px;
+    margin-top: 28px;
+    align-items: center;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .btn-flip {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-weight: 600;
+    padding: 12px 32px;
+  }
+
+  .btn-flip:hover {
+    background: #00b8d9;
+    border-color: #00b8d9;
+    color: #000;
+  }
+
+  .btn-icon {
+    font-size: 16px;
+  }
+
+  /* Known/Unknown tracker */
+  .tracker-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .btn-knew {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(34,197,94,0.3);
+    background: rgba(34,197,94,0.05);
+    color: #22c55e;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .btn-knew:hover {
+    background: rgba(34,197,94,0.15);
+    border-color: rgba(34,197,94,0.6);
+  }
+
+  .btn-didnt {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(239,68,68,0.3);
+    background: rgba(239,68,68,0.05);
+    color: #ef4444;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .btn-didnt:hover {
+    background: rgba(239,68,68,0.15);
+    border-color: rgba(239,68,68,0.6);
+  }
+
+  /* Grid view */
+  .grid-toggle {
+    position: relative;
+    z-index: 10;
+    padding: 0 40px;
+    margin-top: 28px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .view-btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .view-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Grid view */
+  .grid-view {
+    position: relative;
+    z-index: 10;
+    padding: 24px 40px 60px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    display: none;
+  }
+
+  .grid-card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .grid-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,212,255,0.08);
+  }
+
+  .grid-card-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+  }
+
+  .grid-card-q {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .grid-card-a {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .known-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 100px;
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .known-badge.yes {
+    background: rgba(34,197,94,0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34,197,94,0.2);
+  }
+
+  .known-badge.no {
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239,68,68,0.2);
+  }
+
+  /* Keyboard hint */
+  .keyboard-hints {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    padding: 16px 40px 40px;
+    flex-wrap: wrap;
+  }
+
+  .hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 22px;
+    padding: 0 6px;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+  }
+
+  /* Shimmer on load */
+  @keyframes shimmerIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .flashcard-container {
+    animation: shimmerIn 0.4s ease forwards;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    header, .category-nav, .progress-section, .card-area, .grid-view, .keyboard-hints, .grid-toggle {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    .card-face { padding: 32px 28px; }
+    .card-question { font-size: 20px; }
+    .flashcard { height: 340px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-badge">TIA</div>
+    <div class="logo-text">PMP <span>Flashcards</span></div>
+  </div>
+  <div class="header-stats">
+    <div class="stat">
+      <div class="stat-num" id="totalCount">0</div>
+      <div class="stat-label">Cards</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="knownCount" style="color:var(--gold)">0</div>
+      <div class="stat-label">Known</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="unknownCount" style="color:var(--accent2)">0</div>
+      <div class="stat-label">Review</div>
+    </div>
+  </div>
+</header>
+
+<nav class="category-nav" id="categoryNav"></nav>
+
+<div class="progress-section">
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="progress-label" id="progressLabel">0 / 0</div>
+</div>
+
+<div class="card-area" id="cardArea">
+  <div class="card-counter" id="cardCounter">CARD 1 OF 0</div>
+  <div class="flashcard-container">
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="card-tag" id="frontTag">CATEGORY</div>
+        <div class="card-question" id="cardQuestion">Loading...</div>
+        <div class="card-hint">Click to reveal answer</div>
+        <svg class="card-corner-decoration" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="20" stroke="white" stroke-width="2"/>
+          <circle cx="24" cy="24" r="12" stroke="white" stroke-width="2"/>
+          <circle cx="24" cy="24" r="4" fill="white"/>
+        </svg>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-tag" id="backTag">ANSWER</div>
+        <div class="card-answer" id="cardAnswer"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tracker-buttons" style="width:100%;max-width:780px;">
+    <button class="btn-knew" onclick="markKnown()">✓ Got it</button>
+    <button class="btn-didnt" onclick="markDidnt()">✗ Still learning</button>
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="prevCard()"><span class="btn-icon">←</span> Prev</button>
+    <button class="btn btn-flip" onclick="flipCard()">⟳ Flip Card</button>
+    <button class="btn" onclick="nextCard()">Next <span class="btn-icon">→</span></button>
+  </div>
+</div>
+
+<div class="grid-toggle">
+  <button class="view-btn active" id="viewStudy" onclick="switchView('study')">STUDY MODE</button>
+  <button class="view-btn" id="viewGrid" onclick="switchView('grid')">BROWSE ALL</button>
+  <button class="view-btn" id="viewReview" onclick="switchView('review')">REVIEW MODE</button>
+</div>
+
+<div class="grid-view" id="gridView"></div>
+
+<div class="keyboard-hints">
+  <div class="hint"><kbd>←</kbd><kbd>→</kbd> navigate</div>
+  <div class="hint"><kbd>Space</kbd> flip card</div>
+  <div class="hint"><kbd>K</kbd> mark known</div>
+  <div class="hint"><kbd>U</kbd> mark unknown</div>
+  <div class="hint"><kbd>R</kbd> shuffle</div>
+</div>
+
+<script>
+const allCards = [
+  // ─── INITIATING ───
+  {
+    cat: "Initiating",
+    q: "What is the Develop Project Charter process?",
+    a: ["Formally authorizes a project or phase", "Outlines project objectives and PM authority", "Grants the PM authority to assign resources", "The approved charter formally initiates the project"]
+  },
+  {
+    cat: "Initiating",
+    q: "What are the two key Business Documents used as inputs to Develop Project Charter?",
+    a: ["Business Case – determines if the project is worth the investment (Market Demand, Customer Request, Legal Requirement, etc.)", "Benefits Management Plan – describes benefits the project will produce and how to measure them"]
+  },
+  {
+    cat: "Initiating",
+    q: "What are the outputs of Develop Project Charter?",
+    a: ["Project Charter", "Assumption Log"]
+  },
+  {
+    cat: "Initiating",
+    q: "What is the purpose of Identify Stakeholders?",
+    a: ["Identify all people/groups affected by the project", "Analyze and document their interests, involvement, and potential impact", "Creates the Stakeholder Register"]
+  },
+  {
+    cat: "Initiating",
+    q: "What does the Stakeholder Register contain?",
+    a: ["Contact information", "Role on the project (sponsor, functional manager, etc.)", "Communication requirements", "Expectations and how they are affected", "Power/influence level on the project"]
+  },
+  // ─── PLANNING ───
+  {
+    cat: "Planning",
+    q: "What is the Develop Project Management Plan process?",
+    a: ["Defines, prepares, and coordinates all plan components into one integrated document", "Comprehensive document that outlines the basis of all project work", "Contains baselines (scope, schedule, cost) and subsidiary plans"]
+  },
+  {
+    cat: "Planning",
+    q: "What is Define Scope and its key output?",
+    a: ["Developing a detailed description of the project and product", "Key Output: Project Scope Statement", "Scope Statement includes: product description, acceptance criteria, identified risks, constraints, and exclusions"]
+  },
+  {
+    cat: "Planning",
+    q: "What is a Work Breakdown Structure (WBS)?",
+    a: ["Subdivides project deliverables into smaller, manageable components", "Breaks down the project from the scope statement", "Hierarchical decomposition of all project work"]
+  },
+  {
+    cat: "Planning",
+    q: "What are the types of cost on a project?",
+    a: ["Fixed – stays the same (e.g., bulldozer)", "Variable – changes (e.g., hourly labor)", "Direct – billed directly (e.g., materials)", "Indirect – shared across projects (e.g., manager salary)", "Sunk – already spent, cannot be recovered"]
+  },
+  {
+    cat: "Planning",
+    q: "What is the Determine Budget process?",
+    a: ["Aggregates estimated costs of activities/work packages", "Establishes the authorized cost baseline", "The baseline is used to monitor and control project performance"]
+  },
+  {
+    cat: "Planning",
+    q: "What are Contingency vs. Management Reserves?",
+    a: ["Contingency Reserve – PM controls; covers known/unknown risks (identified risks)", "Management Reserve – Management controls; covers unknown/unknown risks (unplanned events)"]
+  },
+  {
+    cat: "Planning",
+    q: "What is the Stakeholder Engagement Assessment Matrix?",
+    a: ["Tool in Plan Stakeholder Engagement", "5 levels: Unaware, Resistant, Neutral, Supportive, Leading", "Shows current vs. desired engagement level for each stakeholder"]
+  },
+  {
+    cat: "Planning",
+    q: "What are the 5 risk response strategies for Threats?",
+    a: ["Avoid – eliminate the threat", "Transfer – shift impact to third party (insurance)", "Mitigate – reduce probability or impact", "Accept – acknowledge and monitor", "Escalate – raise to higher authority"]
+  },
+  {
+    cat: "Planning",
+    q: "What are the 5 risk response strategies for Opportunities?",
+    a: ["Exploit – ensure the opportunity occurs", "Share – allocate to a third party", "Enhance – increase probability or impact", "Accept – take advantage if it occurs", "Escalate – raise to higher authority"]
+  },
+  {
+    cat: "Planning",
+    q: "What is Qualitative Risk Analysis?",
+    a: ["Prioritizes individual risks using probability and impact", "Uses the Probability and Impact Matrix", "Ranks risks as High, Medium, or Low", "Output: Updated Risk Register and Risk Report"]
+  },
+  {
+    cat: "Planning",
+    q: "What is Quantitative Risk Analysis?",
+    a: ["Numerically analyzes the effect of risks on overall project objectives", "Assigns a numeric value to risks", "Uses tools like: Tornado Charts, Decision Tree Analysis, EMV", "EMV = Probability × Risk Cost"]
+  },
+  {
+    cat: "Planning",
+    q: "What is Plan Procurement Management's key tool — Make or Buy?",
+    a: ["Decision about whether to produce goods/services internally or purchase externally", "Must be determined BEFORE a seller is selected", "Independent Cost Estimates: cost estimate done by outside professionals"]
+  },
+  // ─── EXECUTING ───
+  {
+    cat: "Executing",
+    q: "What is Direct and Manage Project Work?",
+    a: ["Leading and performing work defined in the PM plan", "Manages changes and corrective actions", "Key outputs: Deliverables, Work Performance Data, Change Requests"]
+  },
+  {
+    cat: "Executing",
+    q: "What is Manage Quality focused on?",
+    a: ["Auditing quality requirements and results to ensure quality standards are used", "Focus on process improvement (unlike Control Quality which checks deliverables)", "Output: Quality Reports, Test and Evaluation Documents"]
+  },
+  {
+    cat: "Executing",
+    q: "What is the Develop Team process?",
+    a: ["Improving competencies and overall team environment", "Improves team performance", "Tuckman Ladder: Forming → Storming → Norming → Performing → Adjourning"]
+  },
+  {
+    cat: "Executing",
+    q: "What is Conduct Procurements?",
+    a: ["Obtaining seller responses, selecting a seller, and awarding a contract", "Tools: Advertising, Bidder Conferences, Proposal Evaluation", "Key Outputs: Selected Sellers, Agreements"]
+  },
+  {
+    cat: "Executing",
+    q: "What is a Bidder Conference?",
+    a: ["Meeting between buyer and potential sellers (also called Contractor, Vendor, or Pre-bid Conference)", "Ensures all sellers have equal access to information", "Part of Conduct Procurements process"]
+  },
+  {
+    cat: "Executing",
+    q: "What is Manage Stakeholder Engagement?",
+    a: ["Communicating and working with stakeholders to meet their needs and expectations", "Addresses issues as they arise", "Tools include: Communication Skills, Interpersonal Skills, Ground Rules, Meetings"]
+  },
+  {
+    cat: "Executing",
+    q: "What communication tools are used in Manage Communications?",
+    a: ["Communication Technology", "Communication Methods", "Communication Skills (competence, feedback, nonverbal)", "Presentations", "Project Reporting", "Active Listening, Conflict Management, Cultural Awareness"]
+  },
+  {
+    cat: "Executing",
+    q: "What is Implement Risk Responses?",
+    a: ["Executes agreed-upon risk response plans when a risk occurs", "Minimizes project threats and maximizes project opportunities", "Key Tool: Interpersonal and Team Skills (Influencing)"]
+  },
+  // ─── MONITORING & CONTROLLING ───
+  {
+    cat: "Monitoring & Controlling",
+    q: "What is the Perform Integrated Change Control process?",
+    a: ["Reviews all change requests; approves/rejects changes", "Change Control Board (CCB) – responsible group for reviewing and deciding on changes", "Any stakeholder may submit a change request in writing", "Approved changes go back to Direct and Manage Project Work"]
+  },
+  {
+    cat: "Monitoring & Controlling",
+    q: "What are the 7 steps of the change control process?",
+    a: ["1. Identify need for change", "2. Submit written change request to PM", "3. PM assesses impact", "4. Submit to Change Control Board (CCB)", "5. CCB approves or rejects", "6. If approved: PM updates PM Plan", "7. If rejected: develop new change request"]
+  },
+  {
+    cat: "Monitoring & Controlling",
+    q: "What is Validate Scope?",
+    a: ["Formalizing acceptance of completed project deliverables", "Customer/stakeholder formally accepts deliverables", "Difference from Control Quality: Validate Scope = customer acceptance; Control Quality = correctness"]
+  },
+  {
+    cat: "Monitoring & Controlling",
+    q: "What is Control Scope and its tools?",
+    a: ["Monitors status of project and manages changes to scope baseline", "Determines if a scope change has occurred (Scope Creep prevention)", "Tools: Variance Analysis, Trend Analysis"]
+  },
+  {
+    cat: "Monitoring & Controlling",
+    q: "What is Monitor Risks?",
+    a: ["Monitors risk response plans", "Tracks identified risks for changes", "Identifies and analyzes new risks", "Evaluates risk process effectiveness", "Ongoing – 24/7/365"]
+  },
+  {
+    cat: "Monitoring & Controlling",
+    q: "What is Control Procurements?",
+    a: ["Managing procurement relationships and monitoring contract performance", "Tools: Inspections, Audits, Claims Administration", "Claims Administration: resolves disputed changes when buyer and seller can't agree; negotiation is preferred", "Output: Closed Procurements (formal written notice to seller)"]
+  },
+  {
+    cat: "Monitoring & Controlling",
+    q: "What is Monitor Communication?",
+    a: ["Ensures communication requirements of the project and stakeholders are met", "Ensures the communications management plan is being followed", "Uses: PMIS, Data Analysis, Interpersonal and Team Skills"]
+  },
+  // ─── CLOSING ───
+  {
+    cat: "Closing",
+    q: "What is Close Project or Phase?",
+    a: ["Finalizing all activities for the project, phase, or contract", "Key activities: final product handover, lessons learned, release resources", "Archive all documents", "Obtain final acceptance from the customer"]
+  },
+  // ─── AGILE FUNDAMENTALS ───
+  {
+    cat: "Agile",
+    q: "What are the 3 pillars of Scrum?",
+    a: ["Transparency – visibility for those responsible for the outcome", "Inspection – timely checks on progress toward goals; look for deviations", "Adaptation – adjusting the process to minimize further issues"]
+  },
+  {
+    cat: "Agile",
+    q: "What are the 3 Scrum Roles?",
+    a: ["Product Owner – owns product vision, prioritizes backlog, defines features and release dates", "Scrum Master – facilitates the process, protects team, removes impediments", "Development Team – self-organizing, delivers high quality features each sprint"]
+  },
+  {
+    cat: "Agile",
+    q: "What are the 4 Scrum Ceremonies?",
+    a: ["Sprint Planning Meeting – determines what work to do in the sprint", "Daily Scrum (Standup) – 15-min daily sync (What did I do? What will I do? Impediments?)", "Sprint Review – demo to stakeholders at end of sprint", "Sprint Retrospective – team reflects on what went well/wrong; improvements for next sprint"]
+  },
+  {
+    cat: "Agile",
+    q: "What are the 3 Scrum Artifacts?",
+    a: ["Product Backlog – prioritized list of all work needed to complete the product", "Sprint Backlog – subset of product backlog selected for current sprint", "Product Increment – part of the product completed after each sprint"]
+  },
+  {
+    cat: "Agile",
+    q: "What is a Sprint?",
+    a: ["A timeboxed iteration of 1-4 weeks", "Builds a potentially releasable product increment", "No changes made that would affect sprint goal during the sprint", "Team membership stays the same throughout the sprint"]
+  },
+  {
+    cat: "Agile",
+    q: "What is a User Story and its structure?",
+    a: ["Business functionality involving 1-3 days of work", "Structure: As a <user type>, I want to <goal>, so that <value>", "INVEST criteria: Independent, Negotiable, Valuable, Estimatable, Small, Testable"]
+  },
+  {
+    cat: "Agile",
+    q: "What is the Agile Definition of Done (DoD)?",
+    a: ["Shared understanding of when work is considered complete", "Defined at the beginning of the project", "Applies globally to the project", "Examples: unit tests pass, documentation complete, code written and reviewed"]
+  },
+  {
+    cat: "Agile",
+    q: "What is Velocity and how is it used?",
+    a: ["The amount of work (story points) a team completes per iteration", "Used in release planning to forecast which stories can be done", "Helps the team predict future performance based on past performance"]
+  },
+  {
+    cat: "Agile",
+    q: "What is Planning Poker?",
+    a: ["A Wideband Delphi estimation technique", "Uses cards with the Fibonacci sequence (1,2,3,5,8,13,21)", "Fast, collaborative, anonymous estimation to prevent bandwagon effect and HIPPO decisions"]
+  },
+  {
+    cat: "Agile",
+    q: "What are the types of Iterations in Agile?",
+    a: ["Iteration 0 – sets the stage for development; doesn't build anything", "Development Iteration – builds the product increment", "Iteration H (Hardening Sprint) – done at end; cleans up code or produces documentation"]
+  },
+  {
+    cat: "Agile",
+    q: "What are Spikes in Agile?",
+    a: ["Architectural Spike – time dedicated to proof of concept", "Risk-Based Spike – team investigates to reduce or eliminate a specific risk", "Neither produces a deliverable directly but reduces uncertainty"]
+  },
+  {
+    cat: "Agile",
+    q: "What is Technical Debt?",
+    a: ["Backlog of work caused by not doing regular cleanup/refactoring", "Leads to increased cost of development over time", "Makes it harder to implement future changes", "Solution: Refactoring"]
+  },
+  {
+    cat: "Agile",
+    q: "What are Lead Time and Cycle Time?",
+    a: ["Lead Time – how long something takes to go through the ENTIRE process", "Cycle Time – how long something takes to go through PART of the process (subset of lead time)", "Cycle Time formula: WIP ÷ Throughput"]
+  },
+  {
+    cat: "Agile",
+    q: "What is a Kanban Board and WIP Limits?",
+    a: ["Kanban/Task Board = 'information radiator' – makes work visible", "Columns: Items In Progress, Testing, Done", "WIP (Work In Progress) Limit – restricts amount of work started but not complete", "Excessive WIP hides bottlenecks and increases risk"]
+  },
+  {
+    cat: "Agile",
+    q: "What is a Cumulative Flow Diagram (CFD)?",
+    a: ["A stacked graph showing how work is progressing through stages", "Used to identify bottlenecks (Theory of Constraints)", "Widening area = accumulating work in that stage (bottleneck)", "Shows Ready, Dev, Test, Deployed columns over time"]
+  },
+  // ─── AGILE RETROSPECTIVE ───
+  {
+    cat: "Agile",
+    q: "What are the 5 phases of an Agile Retrospective?",
+    a: ["1. Set the Stage – create a safe environment", "2. Gather Data – collect what happened (Timeline, Mad/Sad/Glad, Triple Nickels)", "3. Generate Insights – analyze data (5 Whys, Fishbone, Brainstorming)", "4. Decide What to Do – SMART Goals, Start/Stop/More/Less", "5. Close the Retrospective – Plus/Delta"]
+  },
+  {
+    cat: "Agile",
+    q: "What is SMART goal-setting in retrospectives?",
+    a: ["Specific", "Measurable", "Attainable", "Relevant", "Timely"]
+  },
+  // ─── XP ───
+  {
+    cat: "Agile",
+    q: "What are the 5 XP Core Values?",
+    a: ["Simplicity – reduce complexity and extra features", "Communication – daily standups; everyone knows expectations", "Feedback – get impressions of correctness early", "Courage – allow work to be visible; fail fast", "Respect – accountability; recognize different work styles"]
+  },
+  {
+    cat: "Agile",
+    q: "What is Test-Driven Development (TDD)?",
+    a: ["Team writes tests BEFORE developing the new code", "Ensures code meets acceptance criteria from the start", "An XP practice focused on software quality"]
+  },
+  {
+    cat: "Agile",
+    q: "What is Continuous Integration in XP?",
+    a: ["Bringing code together regularly to ensure it compiles and works together", "Critical practice – surfaces problems before more code is built on top", "Prevents integration failures late in development"]
+  },
+  // ─── MoSCoW ───
+  {
+    cat: "Agile",
+    q: "What is MoSCoW Prioritization?",
+    a: ["Must Have – critical requirements", "Should Have – important but not vital", "Could Have – nice to have", "Would Like – not this time; lowest priority"]
+  },
+  // ─── VALUE DELIVERY ───
+  {
+    cat: "Agile",
+    q: "What is a Minimal Viable Product (MVP)?",
+    a: ["A set of functionality that is complete enough to be useful, but small enough not to be an entire project", "Usually a module in a software application", "Enables early feedback and incremental funding"]
+  },
+  {
+    cat: "Agile",
+    q: "What is Agile Contracting: Money for Nothing / Change for Free?",
+    a: ["Money for Nothing – client can end project early if priorities change; pays cancellation fee", "Change for Free – client can swap features of equal size without cost penalty", "Agile fixes resources and time; varies functionality", "'Customer collaboration over contract negotiation'"]
+  },
+  // ─── EVM ───
+  {
+    cat: "EVM",
+    q: "What are the 3 core EVM measurements?",
+    a: ["PV (Planned Value) – budgeted cost of work SCHEDULED", "EV (Earned Value) – budgeted cost of work PERFORMED", "AC (Actual Cost) – actual cost of work PERFORMED"]
+  },
+  {
+    cat: "EVM",
+    q: "What are the Cost and Schedule Variance formulas?",
+    a: ["CV (Cost Variance) = EV − AC  (positive = under budget)", "SV (Schedule Variance) = EV − PV  (positive = ahead of schedule)"]
+  },
+  {
+    cat: "EVM",
+    q: "What are the Cost and Schedule Performance Index formulas?",
+    a: ["CPI (Cost Performance Index) = EV ÷ AC  (>1 = under budget)", "SPI (Schedule Performance Index) = EV ÷ PV  (>1 = ahead of schedule)"]
+  },
+  {
+    cat: "EVM",
+    q: "What is EMV (Expected Monetary Value)?",
+    a: ["EMV = Probability × Risk Cost", "Used in Decision Tree Analysis and Quantitative Risk Analysis", "Example: 25% chance of a $400K risk = $100K EMV; add to initial cost for total expected cost"]
+  },
+  {
+    cat: "EVM",
+    q: "What is a Tornado Chart?",
+    a: ["A bar chart used in Sensitivity Analysis (Quantitative Risk Analysis)", "Shows which risks have the greatest potential impact on the project", "Bars arranged from longest (most impact) to shortest"]
+  },
+  // ─── ETHICS ───
+  {
+    cat: "Ethics",
+    q: "What are the 4 PMI Code of Ethics values?",
+    a: ["Responsibility – own our decisions and their consequences", "Respect – treat others with dignity and courtesy", "Fairness – make decisions impartially and objectively", "Honesty – communicate truthfully and transparently"]
+  }
+];
+
+let currentCards = [...allCards];
+let currentIndex = 0;
+let isFlipped = false;
+let knownStatus = {};
+let activeCategory = "All";
+const categories = ["All", ...new Set(allCards.map(c => c.cat))];
+
+function init() {
+  // Build category nav
+  const nav = document.getElementById('categoryNav');
+  categories.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (cat === 'All' ? ' active' : '');
+    btn.textContent = cat;
+    btn.onclick = () => filterCategory(cat);
+    nav.appendChild(btn);
+  });
+  updateStats();
+  renderCard();
+  renderGrid();
+}
+
+function filterCategory(cat) {
+  activeCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === cat);
+  });
+  if (cat === 'All') {
+    currentCards = [...allCards];
+  } else {
+    currentCards = allCards.filter(c => c.cat === cat);
+  }
+  currentIndex = 0;
+  isFlipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  renderCard();
+  renderGrid();
+  updateProgress();
+}
+
+function renderCard() {
+  if (currentCards.length === 0) return;
+  const card = currentCards[currentIndex];
+  document.getElementById('frontTag').textContent = card.cat.toUpperCase();
+  document.getElementById('cardQuestion').textContent = card.q;
+  document.getElementById('backTag').textContent = 'ANSWER';
+
+  const answerEl = document.getElementById('cardAnswer');
+  if (Array.isArray(card.a)) {
+    answerEl.innerHTML = '<ul>' + card.a.map(item => `<li>${item}</li>`).join('') + '</ul>';
+  } else {
+    answerEl.innerHTML = `<p>${card.a}</p>`;
+  }
+
+  const idx = allCards.indexOf(card);
+  document.getElementById('cardCounter').textContent = `CARD ${currentIndex + 1} OF ${currentCards.length}`;
+  updateProgress();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('flashcard').classList.toggle('flipped', isFlipped);
+}
+
+function nextCard() {
+  if (currentIndex < currentCards.length - 1) {
+    currentIndex++;
+  } else {
+    currentIndex = 0;
+  }
+  isFlipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  renderCard();
+}
+
+function prevCard() {
+  if (currentIndex > 0) {
+    currentIndex--;
+  } else {
+    currentIndex = currentCards.length - 1;
+  }
+  isFlipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  renderCard();
+}
+
+function markKnown() {
+  const card = currentCards[currentIndex];
+  const idx = allCards.indexOf(card);
+  knownStatus[idx] = 'known';
+  updateStats();
+  renderGrid();
+  nextCard();
+}
+
+function markDidnt() {
+  const card = currentCards[currentIndex];
+  const idx = allCards.indexOf(card);
+  knownStatus[idx] = 'unknown';
+  updateStats();
+  renderGrid();
+  nextCard();
+}
+
+function updateStats() {
+  document.getElementById('totalCount').textContent = allCards.length;
+  const known = Object.values(knownStatus).filter(v => v === 'known').length;
+  const unknown = Object.values(knownStatus).filter(v => v === 'unknown').length;
+  document.getElementById('knownCount').textContent = known;
+  document.getElementById('unknownCount').textContent = unknown;
+}
+
+function updateProgress() {
+  const pct = currentCards.length > 0 ? ((currentIndex + 1) / currentCards.length) * 100 : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${currentIndex + 1} / ${currentCards.length}`;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('gridView');
+  let cards = activeCategory === 'All' ? allCards : currentCards;
+  grid.innerHTML = cards.map((card, i) => {
+    const idx = allCards.indexOf(card);
+    const status = knownStatus[idx];
+    const answerText = Array.isArray(card.a) ? card.a[0] : card.a;
+    const badge = status === 'known'
+      ? '<span class="known-badge yes">✓ Known</span>'
+      : status === 'unknown'
+      ? '<span class="known-badge no">✗ Review</span>'
+      : '';
+    return `<div class="grid-card" onclick="jumpToCard(${idx})">
+      <div class="grid-card-tag">${card.cat}</div>
+      <div class="grid-card-q">${card.q}</div>
+      <div class="grid-card-a">${answerText}</div>
+      ${badge}
+    </div>`;
+  }).join('');
+}
+
+function jumpToCard(globalIdx) {
+  currentIndex = currentCards.indexOf(allCards[globalIdx]);
+  if (currentIndex < 0) currentIndex = 0;
+  isFlipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  renderCard();
+  switchView('study');
+}
+
+function switchView(mode) {
+  const cardArea = document.getElementById('cardArea');
+  const gridView = document.getElementById('gridView');
+  document.getElementById('viewStudy').classList.toggle('active', mode === 'study');
+  document.getElementById('viewGrid').classList.toggle('active', mode === 'grid');
+  document.getElementById('viewReview').classList.toggle('active', mode === 'review');
+
+  if (mode === 'study') {
+    cardArea.style.display = 'flex';
+    gridView.style.display = 'none';
+    currentCards = activeCategory === 'All' ? [...allCards] : allCards.filter(c => c.cat === activeCategory);
+    renderCard();
+  } else if (mode === 'grid') {
+    cardArea.style.display = 'none';
+    gridView.style.display = 'grid';
+    renderGrid();
+  } else if (mode === 'review') {
+    cardArea.style.display = 'flex';
+    gridView.style.display = 'none';
+    // Only show cards marked as unknown or unreviewed
+    const toReview = allCards.filter((c, i) => knownStatus[i] !== 'known');
+    currentCards = activeCategory === 'All' ? toReview : toReview.filter(c => c.cat === activeCategory);
+    currentIndex = 0;
+    isFlipped = false;
+    document.getElementById('flashcard').classList.remove('flipped');
+    if (currentCards.length === 0) {
+      document.getElementById('cardQuestion').textContent = '🎉 All cards marked as known!';
+      document.getElementById('cardCounter').textContent = 'COMPLETE';
+    } else {
+      renderCard();
+    }
+  }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  switch(e.key) {
+    case 'ArrowRight': nextCard(); break;
+    case 'ArrowLeft': prevCard(); break;
+    case ' ': e.preventDefault(); flipCard(); break;
+    case 'k': case 'K': markKnown(); break;
+    case 'u': case 'U': markDidnt(); break;
+    case 'r': case 'R':
+      currentCards = currentCards.sort(() => Math.random() - 0.5);
+      currentIndex = 0;
+      isFlipped = false;
+      document.getElementById('flashcard').classList.remove('flipped');
+      renderCard();
+      break;
+  }
+});
+
+init();
+</script>
+</body>
+</html>
